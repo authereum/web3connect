@@ -169,7 +169,11 @@ class App extends React.Component<any, any> {
     this.web3Modal = new Web3Modal({
       network: this.getNetwork(),
       cacheProvider: true,
-      providerOptions: this.getProviderOptions()
+      providerOptions: this.getProviderOptions(),
+      starkConfig: {
+        authMessage: () => 'Sign this example message: 123',
+        exchangeAddress: '0x4a2ac1e2ba79d4b73d86b5dbd1a05a627964b33c'
+      }
     });
   }
 
@@ -257,7 +261,7 @@ class App extends React.Component<any, any> {
           clientId: process.env.REACT_APP_BITSKI_CLIENT_ID,
           callbackUrl: window.location.href + "bitski-callback.html"
         }
-      }
+      },
     };
     return providerOptions;
   };

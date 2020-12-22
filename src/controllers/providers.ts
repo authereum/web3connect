@@ -1,3 +1,5 @@
+import StarkwareWallet from "@authereum/starkware-wallet";
+import StarkwareProvider from "@authereum/starkware-provider";
 import * as list from "../providers";
 import {
   CONNECT_EVENT,
@@ -10,6 +12,7 @@ import {
   IProviderControllerOptions,
   IProviderOptions,
   IProviderDisplayWithConnector,
+  IStarkConfig,
   getLocal,
   setLocal,
   removeLocal,
@@ -22,6 +25,7 @@ import {
   findMatchingRequiredOptions
 } from "../helpers";
 import { EventController } from "./events";
+import { ethers } from "ethers";
 
 export class ProviderController {
   public cachedProvider: string = "";
@@ -32,6 +36,7 @@ export class ProviderController {
   private injectedProvider: IProviderInfo | null = null;
   private providers: IProviderDisplayWithConnector[] = [];
   private providerOptions: IProviderOptions;
+  private starkConfig: IStarkConfig | undefined;
   private network: string = "";
 
   constructor(opts: IProviderControllerOptions) {
@@ -40,6 +45,7 @@ export class ProviderController {
     this.disableInjectedProvider = opts.disableInjectedProvider;
     this.shouldCacheProvider = opts.cacheProvider;
     this.providerOptions = opts.providerOptions;
+    this.starkConfig = opts.starkConfig;
     this.network = opts.network;
 
     this.injectedProvider = getInjectedProvider();
@@ -198,7 +204,24 @@ export class ProviderController {
       const providerPackage = this.getProviderOption(id, "package");
       const providerOptions = this.getProviderOption(id, "options");
       const opts = { network: this.network || undefined, ...providerOptions };
-      const provider = await connector(providerPackage, opts);
+      let provider = await connector(providerPackage, opts);
+
+			if (this.starkConfig) {
+				const ethersProvider = new ethers.providers.Web3Provider(provider);
+				const signerWallet = ethersProvider.getSigner();
+				const message = this.starkConfig?.authMessage()
+				const signature = await signerWallet.signMessage(message);
+				const starkWallet = StarkwareWallet.fromSignature(
+					signature,
+					ethersProvider
+				);
+				provider = new StarkwareProvider(
+					starkWallet,
+					signerWallet as any,
+					this.starkConfig?.exchangeAddress
+				);
+			}
+
       this.eventController.trigger(CONNECT_EVENT, provider);
       if (this.shouldCacheProvider && this.cachedProvider !== id) {
         this.setCachedProvider(id);

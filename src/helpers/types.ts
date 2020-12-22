@@ -8,6 +8,7 @@ export interface IProviderControllerOptions {
   cacheProvider: boolean;
   providerOptions: IProviderOptions;
   network: string;
+  starkConfig: IStarkConfig | undefined
 }
 
 export interface IAbstractConnectorOptions {
@@ -99,4 +100,9 @@ export type Connector = (provider?: any, opts?: any) => Promise<any>;
 
 export interface IConnectorsMap {
   [id: string]: Connector;
+}
+
+export interface IStarkConfig {
+  authMessage: () => string,
+    exchangeAddress: string
 }
