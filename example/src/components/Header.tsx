@@ -52,13 +52,19 @@ const SAddress = styled.p<IHeaderStyle>`
   margin: ${({ connected }) => (connected ? '-2px auto 0.7em' : '0')};
 `
 
+const SStarkKey = styled.p`
+  transition: ${transitions.base};
+  font-weight: bold;
+  margin: 2px auto 0.7em;
+`
+
 const SDisconnect = styled.div<IHeaderStyle>`
   transition: ${transitions.button};
   font-size: 12px;
   font-family: monospace;
   position: absolute;
   right: 0;
-  top: 20px;
+  bottom: -5px;
   opacity: 0.7;
   cursor: pointer;
 
@@ -76,11 +82,12 @@ interface IHeaderProps {
   killSession: () => void
   connected: boolean
   address: string
+  starkKey: string
   chainId: number
 }
 
 const Header = (props: IHeaderProps) => {
-  const { connected, address, chainId, killSession } = props
+  const { connected, address, starkKey, chainId, killSession } = props
   const chainData = chainId ? getChainData(chainId) : null
   return (
     <SHeader {...props}>
@@ -95,7 +102,12 @@ const Header = (props: IHeaderProps) => {
       {address && (
         <SActiveAccount>
           <SBlockie address={address} />
-          <SAddress connected={connected}>{ellipseAddress(address)}</SAddress>
+          <div>
+            <SAddress connected={connected}>
+              Address: {ellipseAddress(address)}
+            </SAddress>
+            <SStarkKey>Stark Key: {ellipseAddress(starkKey)}</SStarkKey>
+          </div>
           <SDisconnect connected={connected} onClick={killSession}>
             {'Disconnect'}
           </SDisconnect>

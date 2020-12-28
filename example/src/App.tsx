@@ -114,6 +114,7 @@ const STestButton = styled(Button)`
 interface IAppState {
   fetching: boolean;
   address: string;
+  starkKey: string;
   web3: any;
   provider: any;
   connected: boolean;
@@ -128,6 +129,7 @@ interface IAppState {
 const INITIAL_STATE: IAppState = {
   fetching: false,
   address: "",
+  starkKey: "",
   web3: null,
   provider: null,
   connected: false,
@@ -198,11 +200,15 @@ class App extends React.Component<any, any> {
 
     const chainId = await web3.eth.chainId();
 
+    await provider.enable()
+    const starkKey = await provider.getActiveAccount()
+
     await this.setState({
       web3,
       provider,
       connected: true,
       address,
+      starkKey,
       chainId,
       networkId
     });
@@ -550,6 +556,7 @@ class App extends React.Component<any, any> {
     const {
       assets,
       address,
+      starkKey,
       connected,
       chainId,
       fetching,
@@ -563,6 +570,7 @@ class App extends React.Component<any, any> {
           <Header
             connected={connected}
             address={address}
+            starkKey={starkKey}
             chainId={chainId}
             killSession={this.resetApp}
           />
